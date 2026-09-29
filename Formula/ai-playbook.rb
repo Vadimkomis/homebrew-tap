@@ -12,7 +12,7 @@ class AiPlaybook < Formula
     libexec.install "bin", "src", "templates", "contracts", ".agents", "Codex", "Claude", "package.json"
     (bin/"ai-playbook").write <<~SH
       #!/bin/sh
-      exec "#{Formula["node"].opt_bin}/node" "#{libexec}/bin/ai-playbook.js" "$@"
+      exec "#{formula_opt_bin("node")}/node" "#{libexec}/bin/ai-playbook.js" "$@"
     SH
   end
 
@@ -20,7 +20,8 @@ class AiPlaybook < Formula
     project = testpath/"project with spaces"
     project.mkpath
     system bin/"ai-playbook", "--target", project, "--yes"
-    assert_equal %w[.ai-playbook-manifest.json AGENTS.md ARCHITECTURE.md memory.md], project.children.map(&:basename).map(&:to_s).sort
+    expected = %w[.ai-playbook-manifest.json AGENTS.md ARCHITECTURE.md memory.md]
+    assert_equal expected, project.children.map { |file| file.basename.to_s }.sort
     assert_match "TODO", shell_output("#{bin}/ai-playbook doctor --target '#{project}'", 1)
 
     # Completed, customized docs must survive reinstalling with every optional asset.
